@@ -1,1 +1,1 @@
-# reactive-lab
+# Jakub Spólnik
