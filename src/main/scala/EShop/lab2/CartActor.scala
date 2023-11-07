@@ -37,7 +37,6 @@ class CartActor extends Actor {
 
   def empty: Receive = LoggingReceive {
     case AddItem(item) => context.become(nonEmpty(Cart(Seq(item)), scheduleTimer))
-    case _ => log.info("received unknown message in empty state")
   }
 
   def nonEmpty(cart: Cart, timer: Cancellable): Receive = LoggingReceive {
