@@ -40,8 +40,11 @@ class TypedCartActor {
       message match {
         case AddItem(item) =>
           nonEmpty(Cart(Seq(item)), scheduleTimer(context))
-        case _ =>
+        case GetItems(sender) =>
+          sender ! Cart.empty
           Behaviors.same
+        case _ =>
+          Behaviors.unhandled
       }
     }
 
@@ -55,12 +58,18 @@ class TypedCartActor {
           empty
         case RemoveItem(item) if cart.contains(item) =>
           nonEmpty(cart.removeItem(item), timer)
-        case StartCheckout =>
+        case StartCheckout(orderManager) =>
+          val checkout = context.spawn(new TypedCheckout(context.self).start, "checkout")
+          orderManager ! OrderManager.ConfirmCheckoutStarted(checkout)
+          checkout ! TypedCheckout.StartCheckout
           inCheckout(cart)
         case ExpireCart =>
           empty
-        case _ =>
+        case GetItems(sender) =>
+          sender ! cart
           Behaviors.same
+        case _ =>
+          Behaviors.unhandled
       }
     }
 
@@ -68,6 +77,7 @@ class TypedCartActor {
     (context, msg) => msg match {
       case ConfirmCheckoutCancelled => nonEmpty(cart, scheduleTimer(context))
       case ConfirmCheckoutClosed => empty
+      case _ => Behaviors.unhandled
     }
   )
 
