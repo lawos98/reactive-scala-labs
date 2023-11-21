@@ -39,7 +39,7 @@ class RestartPersistentCartActorTest
   def generatePersistenceId: PersistenceId = PersistenceId.ofUniqueId(Random.alphanumeric.take(256).mkString)
 
   it should "add one item after restart after restart" in {
-    val result = eventSourcedTestKit.runCommand(AddItem("Hamlet"))
+    val result = eventSourcedTestKit.runCommand(AddItem("It"))
 
     result.event.isInstanceOf[ItemAdded] shouldBe true
     result.state.isInstanceOf[NonEmpty] shouldBe true
@@ -47,7 +47,7 @@ class RestartPersistentCartActorTest
     val restartResult = eventSourcedTestKit.restart()
 
     restartResult.state.isInstanceOf[NonEmpty] shouldBe true
-    restartResult.state.cart shouldEqual Cart.empty.addItem("Hamlet")
+    restartResult.state.cart shouldEqual Cart.empty.addItem("It")
   }
 
   it should "be empty after adding new item and removing it after restart after restart" in {
